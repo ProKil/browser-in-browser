@@ -1,0 +1,12 @@
+[project]
+name = "bib-server"
+version = "0.0.1"
+description = "A playwright-based browsing server"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.5",
+    "playwright>=1.15.0",
+    "pydantic>=2.10.2",
+    "uvicorn[standard]>=0.32.1",
+]
