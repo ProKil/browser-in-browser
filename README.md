@@ -25,7 +25,11 @@ uv run python main.py
 
 ## Usage
 
-Navigate to [https://bib.zhuhao.me](https://bib.zhuhao.me) and enter the URL you hosted the frontend on.
+> [!CAUTION]
+> Using `http` only for local development purpose. Please use `https://bib.zhuhao.me` or your self-hosted version together
+> with a securly hosted backend (using `https` and `wss` endpoints).
+
+Navigate to [http://bib.zhuhao.me](http://bib.zhuhao.me) and enter the URL you hosted the frontend on.
 Put in the backend url (default is `http://localhost:8000`). 
 
 When you input a URL, the backend will open the URL in a browser. 
