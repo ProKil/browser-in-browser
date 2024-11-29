@@ -6,7 +6,7 @@ I am surprised that data collection for web agents is still hard. This is a hack
 
 ### Frontend
 
-You can use the hosted version at [https://bib.zhuhao.me](https://bib.zhuhao.me) or you can run your own frontend. 
+You can use the hosted version at [bib.zhuhao.me](https://bib.zhuhao.me) or you can run your own frontend through
 
 ```bash
 cd frontend
@@ -19,6 +19,9 @@ Run the backend server.
 
 ```bash
 cd backend
+
+# pip install uv # if you don't have uv installed.
+
 uv run playwright install
 uv run python main.py
 ```
@@ -26,7 +29,7 @@ uv run python main.py
 ## Usage
 
 > [!CAUTION]
-> Using `http` only for local development purpose. Please use `https://bib.zhuhao.me` or your self-hosted version together
+> Use `http` only for local development purpose. Please use `https://bib.zhuhao.me` or your self-hosted version together
 > with a securly hosted backend (using `https` and `wss` endpoints).
 
 Navigate to [http://bib.zhuhao.me](http://bib.zhuhao.me) and enter the URL you hosted the frontend on.
