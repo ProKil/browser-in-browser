@@ -186,24 +186,46 @@ async def click_coordinate(payload: ClickPayload) -> JsonResponse:
         raise HTTPException(status_code=500, detail="Page not initialized")
     
     try:
+        # Set up detection for new page before clicking
+        page_promise = state.context.wait_for_event('page', timeout=2000)
+        
         # Click the coordinate
         await state.page.mouse.click(payload.x * 1280, payload.y * 800)
-
-        element = await state.page.evaluate("""
-            (x, y) => {
-                const element = document.elementFromPoint(x, y);
-                if (element) {
-                    element.focus();
-                    return true;
-                }
-                return false;
-            }
-        """, payload.x * 1280, payload.y * 800)
         
-        return {
-            "success": True,
-            "focused": element
-        }
+        try:
+            # Wait for new page with timeout
+            new_page = await page_promise
+            await new_page.wait_for_load_state('networkidle')
+            
+            # Add the new page to state management if needed
+            state.page = new_page
+            
+            return {
+                "success": True,
+                "focused": True,
+                "new_page": True,
+                "url": new_page.url
+            }
+            
+        except TimeoutError:
+            # No new page opened, proceed with focusing element
+            element = await state.page.evaluate("""
+                (x, y) => {
+                    const element = document.elementFromPoint(x, y);
+                    if (element) {
+                        element.focus();
+                        return true;
+                    }
+                    return false;
+                }
+            """, payload.x * 1280, payload.y * 800)
+            
+            return {
+                "success": True,
+                "focused": element,
+                "new_page": False
+            }
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
