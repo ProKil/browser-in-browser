@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, Response
-from pydantic import BaseModel
-from playwright.async_api import async_playwright, Browser, Page, BrowserContext, Playwright
+from pydantic import BaseModel, ConfigDict, Field
+from playwright.async_api import async_playwright, Browser, Page, BrowserContext, Playwright, TimeoutError
 from typing import AsyncGenerator, Optional, Dict, Any, Union, Set
 import asyncio
 import logging
@@ -45,15 +45,18 @@ class GotoPayload(BaseModel):
         frozen = True
 
 # web_application state container
-@dataclass
-class web_appState:
-    playwright: Optional[Playwright] = None
-    browser: Optional[Browser] = None
-    context: Optional[BrowserContext] = None
-    page: Optional[Page] = None
-    active_connections: Set[WebSocket] = None
+class BrowserState(object):
+    playwright: Optional[Playwright]
+    browser: Optional[Browser]
+    context: Optional[BrowserContext]
+    page: Optional[Page]
+    active_connections: Set[WebSocket]
 
-    def __post_init__(self):
+    def __init__(self):
+        self.playwright = None
+        self.browser = None
+        self.context = None
+        self.page = None
         self.active_connections = set()
 
 web_app = FastAPI()
@@ -63,7 +66,7 @@ web_app = FastAPI()
 # ).run_commands(
 #     "playwright install --with-deps"
 # )
-state = web_appState()
+state = BrowserState()
 
 # Add CORS middleware
 web_app.add_middleware(
@@ -187,6 +190,7 @@ async def click_coordinate(payload: ClickPayload) -> JsonResponse:
     
     try:
         # Set up detection for new page before clicking
+        assert state.context is not None
         page_promise = state.context.wait_for_event('page', timeout=2000)
         
         # Click the coordinate
@@ -209,16 +213,17 @@ async def click_coordinate(payload: ClickPayload) -> JsonResponse:
             
         except TimeoutError:
             # No new page opened, proceed with focusing element
-            element = await state.page.evaluate("""
-                (x, y) => {
-                    const element = document.elementFromPoint(x, y);
-                    if (element) {
+            assert state.page is not None
+            element = await state.page.evaluate(f"""
+                () => {{
+                    const element = document.elementFromPoint({payload.x * 1280}, {payload.y * 800});
+                    if (element) {{
                         element.focus();
                         return true;
-                    }
+                    }}
                     return false;
-                }
-            """, payload.x * 1280, payload.y * 800)
+                }}
+            """)
             
             return {
                 "success": True,
@@ -227,6 +232,7 @@ async def click_coordinate(payload: ClickPayload) -> JsonResponse:
             }
             
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @web_app.post("/keyboard")

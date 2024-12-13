@@ -12,7 +12,7 @@ export default function WebSocketScreenshotDisplay() {
   const [, setError] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [url, setUrl] = useState('')
-  const [serverUrl, setServerUrl] = useState('http://localhost:8000')
+  const [serverUrl, setServerUrl] = useState('https://sotopia-lab--bib-backend-modalapp-serve.modal.run')
   const wsRef = useRef<WebSocket | null>(null)
   const interactionAreaRef = useRef<HTMLDivElement>(null)
 
@@ -183,7 +183,7 @@ export default function WebSocketScreenshotDisplay() {
       interactionArea.removeEventListener('keydown', handleKeyDown)
       interactionArea.removeEventListener('keyup', handleKeyUp)
     }
-  }, [addEvent])
+  }, [addEvent, serverUrl])
 
 
   return (
