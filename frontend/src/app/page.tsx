@@ -12,7 +12,7 @@ export default function WebSocketScreenshotDisplay() {
   const [, setError] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [url, setUrl] = useState('')
-  const [serverUrl, setServerUrl] = useState('https://sotopia-lab--bib-backend-modalapp-serve.modal.run')
+  const [serverUrl, setServerUrl] = useState('https://prokil--bib-backend-modalapp-serve.modal.run')
   const wsRef = useRef<WebSocket | null>(null)
   const interactionAreaRef = useRef<HTMLDivElement>(null)
 
